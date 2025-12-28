@@ -10,6 +10,7 @@ The system processes documents, generates vector embeddings, and stores them in 
     *   **Google Gemini**: For fast, high-quality cloud-based responses.
     *   **Ollama**: For running local models (e.g., Llama 3).
 *   **REST API**: Simple interface built with FastAPI for upload and queries.
+*   **Web Interface:** There's a simple web interface built to communicate with the system effortlessly.
 
 ## Prerequisites
 
@@ -76,6 +77,13 @@ fastapi dev src/app.py
 ```
 
 The API will be available at `http://localhost:8000`.
+
+
+## Web Interface
+```bash
+python3 -m http.server 8002
+# or use an extension like live server, it will work the same.
+```
 
 ## How to Use
 

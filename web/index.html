@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="index.css">
+    <title>Local RAG</title>
+</head>
+
+<body>
+    <h1 id="title">Local RAG</h1>
+    <section id="upload">
+        <h2>Enter your PDF file path</h2>
+        <input type="text" id="pathInput" placeholder="Ex: /path/to/your/file.pdf" />
+        <div>
+            <button id="uploadButton">Upload</button>
+        </div>
+        <div id="uploadLoading" class="hidden">
+            Loading, please wait...
+        </div>
+    </section>
+    <section id="question">
+        <h2>Ask a question about your document</h2>
+        <input type="text" id="questionInput" placeholder="What is this document about?" />
+        <div id="askButtons">
+            <div>
+                <button id="geminiAskButton">Ask to Gemini</button>
+                <p id="geminiInfo">You need to setup Gemini API key on .env file.</p>
+            </div>
+            <div>
+                <button id="llamaAskButton">Ask to Llama</button>
+                <p id="llamaInfo">You need to setup Ollama and have it running locally.</p>
+                <p id="llamaResponseTime">And it may take some time to respond.</p>
+            </div>
+        </div>
+    </section>
+
+    <div id="answer">
+        <div id="answerLoading" class="hidden">
+            Loading, please wait...
+        </div>
+    </div>
+    
+    <section id="restart">
+        <button id="restartButton">Restart Documents</button>
+        <div id="restartLoading" class="hidden">
+            Loading, please wait...
+        </div>
+        <h3>This will clear all uploaded documents and start fresh.</h3>
+    </section>
+    <script src="script.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,105 @@
+const uploadButton = document.getElementById('uploadButton');
+const geminiAskButton = document.getElementById('geminiAskButton');
+const llamaAskButton = document.getElementById('llamaAskButton');
+const restartButton = document.getElementById('restartButton');
+
+const pathInput = document.getElementById('pathInput');
+const questionInput = document.getElementById('questionInput');
+
+const answerDiv = document.getElementById('answer');
+
+const uploadLoading = document.getElementById('uploadLoading');
+const answerLoading = document.getElementById('answerLoading');
+const restartLoading = document.getElementById('restartLoading');
+
+const baseURL = "http://127.0.0.1:8000"
+
+uploadButton.addEventListener('click', async () => {
+    uploadLoading.classList.remove('hidden');
+    const path = pathInput.value;
+    try {
+        response = await fetch(`${baseURL}/upload/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ file_path: path })
+        });
+
+        data = await response.json();
+        pathInput.value = '';
+
+        if (!response.ok) {
+            alert('Upload failed: ' + (data.detail || 'Unknown error'));
+            throw new Error(data.detail || 'Upload failed');
+        }
+
+        alert('File uploaded and processed successfully');
+
+    } catch (error) {
+        console.error('Error:', error);
+    } finally {
+        uploadLoading.classList.add('hidden');
+    }
+});
+
+geminiAskButton.addEventListener('click', async () => {
+    await queryRequest(`${baseURL}/query-gemini/`);
+});
+
+llamaAskButton.addEventListener('click', async () => {
+    await queryRequest(`${baseURL}/query-ollama/`);
+});
+
+async function queryRequest(url) {
+    answerLoading.classList.remove('hidden');
+    const question = questionInput.value;
+    try {
+        response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ question: question })
+        });
+
+        data = await response.json();
+        questionInput.value = '';
+
+        if (!response.ok) {
+            alert('Question failed: ' + (data.detail || 'Unknown error'));
+            throw new Error(data.detail || 'Question failed');
+        }
+
+        answerDiv.innerHTML = `<h3 id="answerTitle">Answer:</h3><p id="answerContent">${data.results}</p>`;
+
+    } catch (error) {
+        console.error('Error:', error);
+    } finally {
+        answerLoading.classList.add('hidden');
+    }
+}
+
+restartButton.addEventListener('click', async () => {
+    restartLoading.classList.remove('hidden');
+
+    pathInput.value = '';
+    questionInput.value = '';
+    answerDiv.innerHTML = '';
+
+    try {
+        response = await fetch(`${baseURL}/clear-database/`, {
+            method: 'DELETE'
+        });
+
+        data = await response.json();
+
+        if (!response.ok) {
+            alert('Failed to clear database: ' + (data.detail || 'Unknown error'));
+            throw new Error(data.detail || 'Clear database failed');
+        }
+
+        alert('Database cleared successfully');
+
+    } catch (error) {
+        console.error('Error:', error);
+    } finally {
+        restartLoading.classList.add('hidden');
+    }
+});

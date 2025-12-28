@@ -1,0 +1,89 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+.hidden {
+    display: none;
+}
+
+#title {
+    text-align: center;
+    margin-top: 2rem;
+}
+
+#upload, #question {
+    width: 60%;
+    margin: 2rem auto;
+    padding: 1.5rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    text-align: center;
+}
+
+#upload input, #question input {
+    width: 80%;
+    padding: 0.6rem;
+    font-size: 1rem;
+    margin: 0.5rem 0;
+}
+
+#upload button, #question button {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-left: 1rem;
+}
+
+#geminiInfo {
+    text-align: center;
+    margin-top: 0.8rem;
+    font-size: 0.9rem;
+    font-style: italic;
+}
+
+#llamaInfo {
+    text-align: center;
+    margin-top: 0.8rem;
+    font-size: 0.9rem;
+    font-style: italic;
+}
+
+#llamaResponseTime {
+    text-align: center;
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    font-style: italic;
+}
+
+#askButtons {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 1rem;
+}
+
+#answer {
+    text-align: center;
+    width: 60%;
+    margin: 2rem auto;
+    padding: 1.5rem;
+    min-height: 100px;
+}
+
+#restart {
+    width: 60%;
+    margin: 2rem auto;
+    padding: 1.5rem;
+    text-align: center;
+}
+
+#restart button {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-bottom: 1rem;
+}

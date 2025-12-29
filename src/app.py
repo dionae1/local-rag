@@ -2,7 +2,7 @@ from services import UploadService, DBEngineService, DBService
 
 from pathlib import Path
 from pydantic import BaseModel
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
@@ -33,6 +33,21 @@ class PDFRequest(BaseModel):
 
 class QueryRequest(BaseModel):
     question: str
+
+
+@app.post("/upload-file/")
+def upload_file(file: UploadFile):
+    print("Received file:", file.filename)
+    if file.content_type != "application/pdf":
+        raise HTTPException(status_code=400, detail="Only PDF files are supported.")
+
+    temp_file_path = Path(f"/tmp/{file.filename}")
+    with temp_file_path.open("wb") as buffer:
+        buffer.write(file.file.read())
+    service = UploadService(str(temp_file_path))
+    service.insert_documents()
+    temp_file_path.unlink()
+    return {"status": "Documents inserted into the vector database."}
 
 
 @app.post("/upload/")

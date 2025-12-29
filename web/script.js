@@ -2,8 +2,10 @@ const uploadButton = document.getElementById('uploadButton');
 const geminiAskButton = document.getElementById('geminiAskButton');
 const llamaAskButton = document.getElementById('llamaAskButton');
 const restartButton = document.getElementById('restartButton');
+const uploadFileButton = document.getElementById('uploadFileButton');
 
 const pathInput = document.getElementById('pathInput');
+const fileInput = document.getElementById('fileInput');
 const questionInput = document.getElementById('questionInput');
 
 const answerDiv = document.getElementById('answer');
@@ -15,6 +17,36 @@ const restartLoading = document.getElementById('restartLoading');
 const emptyMessage = document.getElementById('emptyMessage');
 
 const baseURL = "http://127.0.0.1:8000"
+
+uploadFileButton.addEventListener('click', async () => {
+    uploadLoading.classList.remove('hidden');
+    const file = fileInput.files[0];
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+        response = await fetch(`${baseURL}/upload-file/`, {
+            method: 'POST',
+            body: formData
+        });
+
+        data = await response.json();
+        fileInput.value = '';
+
+        if (!response.ok) {
+            alert('Upload failed: ' + (data.detail || 'Unknown error'));
+            throw new Error(data.detail || 'Upload failed');
+        }
+
+        alert('File uploaded and processed successfully');
+        window.location.reload();
+
+    } catch (error) {
+        console.error('Error:', error);
+    } finally {
+        uploadLoading.classList.add('hidden');
+    }
+});
 
 uploadButton.addEventListener('click', async () => {
     uploadLoading.classList.remove('hidden');
@@ -35,6 +67,7 @@ uploadButton.addEventListener('click', async () => {
         }
 
         alert('File uploaded and processed successfully');
+        window.location.reload();
 
     } catch (error) {
         console.error('Error:', error);
@@ -98,6 +131,7 @@ restartButton.addEventListener('click', async () => {
         }
 
         alert('Database cleared successfully');
+        window.location.reload();
 
     } catch (error) {
         console.error('Error:', error);

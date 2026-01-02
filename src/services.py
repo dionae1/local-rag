@@ -1,5 +1,6 @@
 import json
-from vector_db import VectorDB
+from db.vector_db import VectorDB
+from db.factory_db import get_vector_db
 from embedding_engine import EmbeddingEngine
 from document_parser import DocumentParser
 
@@ -19,11 +20,11 @@ def build_llm(model_type: str, **kwargs) -> LLM:
         return DummyLLM()
 
 class UploadService:
-    def __init__(self, file_path: str):
+    def __init__(self, file_path: str, db = None):
         self.file_path = file_path
         self.parser = DocumentParser(file_path)
-        self.db = VectorDB()
         self.engine = EmbeddingEngine()
+        self.db = db or get_vector_db()
 
     def insert_documents(self):
         if not self.parser:
@@ -52,9 +53,9 @@ class UploadService:
 
 
 class LLMService:
-    def __init__(self, llm: LLM, embedding_engine: EmbeddingEngine | None = None):
-        self.db = VectorDB()
+    def __init__(self, llm: LLM, embedding_engine: EmbeddingEngine | None = None, db = None):
         self.llm = llm
+        self.db = db or get_vector_db()
         self.engine = embedding_engine or EmbeddingEngine()
         
     def _query(self, query, top_k=5):
@@ -76,8 +77,8 @@ class LLMService:
 
 
 class DBService:
-    def __init__(self):
-        self.db = VectorDB()
+    def __init__(self, db = None):
+        self.db = db or get_vector_db()
 
     def check_empty(self) -> bool:
         return self.db.is_empty()

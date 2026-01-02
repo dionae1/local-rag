@@ -1,7 +1,14 @@
-from llm.transformers import TransformersLLM
-from services import LLMService
+from services import UploadService, LLMService, DBService, build_llm
+from db.factory_db import get_vector_db
+    
+db = get_vector_db()
 
-llm = TransformersLLM("Qwen/Qwen2.5-7B-Instruct")
-rag = LLMService(llm)
+us = UploadService("samples/sample.pdf", db=db)
+us.insert_documents()
 
-print(rag.answer("Explain the content of the document in one sentence."))
+print("Documents inserted into the vector database.")
+
+llms = LLMService(build_llm("gemini"), db=db)
+query = "What is the main topic of the document?"
+results = llms.answer(query)
+print("Query Results:", results)

@@ -1,27 +1,29 @@
 import os
 from dotenv import load_dotenv
+
 import psycopg2
 from psycopg2.extras import execute_values
 
-load_dotenv()
+from db.vector_db import VectorDB
 
-class VectorDB:
+
+class PostgresVectorDB(VectorDB):
     def __init__(self):
         try:
-            self.conn = psycopg2.connect(
-                dbname=os.getenv("DB_NAME", "semantic_search_db"),
-                user=os.getenv("DB_USER", "vector_admin"),
-                password=os.getenv("DB_PASSWORD", "vector_password"),
-                host=os.getenv("DB_HOST", "localhost"),
-                port=os.getenv("DB_PORT", "5433")
-            )
+            load_dotenv()
+            db_name = os.getenv("DB_NAME", "semantic_search_db")
+            db_user = os.getenv("DB_USER", "vector_admin")
+            db_password = os.getenv("DB_PASSWORD", "vector_password")
+            db_host = os.getenv("DB_HOST", "localhost")
+            db_port = os.getenv("DB_PORT", "5433")
+
+            self.conn = psycopg2.connect(dbname=db_name, user=db_user, password=db_password, host=db_host, port=db_port)
             self.conn.autocommit = False
             self.create_table()
 
-
         except Exception as e:
             raise Exception(f"Database connection failed: {e}")
-        
+
     def create_table(self):
         create_table_query = """
         CREATE TABLE IF NOT EXISTS embeddings.documents (
@@ -49,9 +51,7 @@ class VectorDB:
         with self.conn.cursor() as cursor:
             execute_values(cursor, insert_query, data)
             self.conn.commit()
-            print(f"Inserted {len(data)} documents.")
 
-    
     def search(self, query_vector: list[float], limit: int = 5) -> list[tuple]:
         """
         - Row[0]: id
@@ -70,7 +70,6 @@ class VectorDB:
             cursor.execute(search_query, (query_vector, query_vector, limit))
             rows = cursor.fetchall()
             return rows
-        
 
     def delete_all_documents(self):
         delete_query = "TRUNCATE TABLE embeddings.documents RESTART IDENTITY;"
@@ -78,8 +77,6 @@ class VectorDB:
         with self.conn.cursor() as cursor:
             cursor.execute(delete_query)
             self.conn.commit()
-            print("All documents deleted.")
-
 
     def is_empty(self) -> bool:
         count_query = "SELECT COUNT(*) FROM embeddings.documents;"
@@ -94,9 +91,3 @@ class VectorDB:
     def close(self):
         if self.conn:
             self.conn.close()
-
-
-if __name__ == "__main__":
-    vector_db = VectorDB()
-    print("VectorDB initialized successfully.")
-    vector_db.close()

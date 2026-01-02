@@ -79,13 +79,13 @@ def query_llm(request: QueryRequest):
     return {"results": results}
 
 
-@app.delete("/clear-database/")
+@app.delete("/database/")
 def clear_database(service: DBService = Depends(DBService)):
     service.clear_database()
     return {"status": "Vector database cleared."}
 
 
-@app.get("/is-empty/")
+@app.get("/database /")
 def is_database_empty(service: DBService = Depends(DBService)):
     empty = service.check_empty()
     return {"is_empty": empty}

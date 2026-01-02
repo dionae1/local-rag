@@ -1,6 +1,5 @@
 const uploadButton = document.getElementById('uploadButton');
-const geminiAskButton = document.getElementById('geminiAskButton');
-const llamaAskButton = document.getElementById('llamaAskButton');
+const askButton = document.getElementById('askButton');
 const restartButton = document.getElementById('restartButton');
 const uploadFileButton = document.getElementById('uploadFileButton');
 
@@ -76,19 +75,16 @@ uploadButton.addEventListener('click', async () => {
     }
 });
 
-geminiAskButton.addEventListener('click', async () => {
-    await queryRequest(`${baseURL}/query-gemini/`);
+
+askButton.addEventListener('click', async () => {
+    await queryRequest();
 });
 
-llamaAskButton.addEventListener('click', async () => {
-    await queryRequest(`${baseURL}/query-ollama/`);
-});
-
-async function queryRequest(url) {
+async function queryRequest() {
     answerLoading.classList.remove('hidden');
     const question = questionInput.value;
     try {
-        response = await fetch(url, {
+        response = await fetch(`${baseURL}/query/`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ question: question })

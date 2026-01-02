@@ -1,9 +1,16 @@
-from services import UploadService, DBEngineService, DBService
+from services import UploadService, LLMService, DBService, build_llm
 
 from pathlib import Path
 from pydantic import BaseModel
 from fastapi import FastAPI, HTTPException, Depends, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
+
+from dotenv import load_dotenv
+load_dotenv()
+
+import os
+model = os.getenv("LLM_MODEL", "dummy")
+llm = build_llm(model)
 
 app = FastAPI()
 
@@ -44,6 +51,7 @@ def upload_file(file: UploadFile):
     temp_file_path = Path(f"/tmp/{file.filename}")
     with temp_file_path.open("wb") as buffer:
         buffer.write(file.file.read())
+        
     service = UploadService(str(temp_file_path))
     service.insert_documents()
     temp_file_path.unlink()
@@ -64,15 +72,10 @@ def upload_document(request: PDFRequest):
     return {"status": "Documents inserted into the vector database."}
 
 
-@app.post("/query-gemini/")
-def query_documents(request: QueryRequest, service: DBEngineService = Depends(DBEngineService)):
-    results = service.gemini_answer(request.question)
-    return {"results": results}
-
-
-@app.post("/query-ollama/")
-def query_documents_ollama(request: QueryRequest, service: DBEngineService = Depends(DBEngineService)):
-    results = service.ollama_answer(request.question)
+@app.post("/query/")
+def query_llm(request: QueryRequest):
+    service = LLMService(llm)
+    results = service.answer(request.question)
     return {"results": results}
 
 

@@ -5,22 +5,35 @@ from typing import List, Tuple
 
 
 class SQLiteVectorDB:
-    def __init__(self):
-        self.conn = sqlite3.connect(":memory:")
+    def __init__(self, db_path: str = "sqlite.db"):
+        self.conn = sqlite3.connect(db_path or ":memory:")
         self.embeddings: List[np.ndarray] = []
         self.ids: List[int] = []
         self.create_table()
+        self.load_existing_data()
 
     def create_table(self):
         query = """
         CREATE TABLE IF NOT EXISTS documents (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             content TEXT NOT NULL,
-            metadata TEXT DEFAULT '{}'
+            metadata TEXT DEFAULT '{}',
+            embedding BLOB
         );
         """
         self.conn.execute(query)
         self.conn.commit()
+
+    def load_existing_data(self):
+        try:
+            cursor = self.conn.execute("SELECT id, embedding FROM documents")
+            rows = cursor.fetchall()
+            for row_id, embedding_blob in rows:
+                if embedding_blob:
+                    self.ids.append(row_id)
+                    self.embeddings.append(np.frombuffer(embedding_blob, dtype=np.float32))
+        except sqlite3.OperationalError:
+            pass
 
     def insert_documents(self, data: List[Tuple[str, dict, list]]):
         """
@@ -29,15 +42,16 @@ class SQLiteVectorDB:
         cursor = self.conn.cursor()
 
         for content, metadata, embedding in data:
+            emb_array = np.array(embedding, dtype=np.float32)
             cursor.execute(
-                "INSERT INTO documents (content, metadata) VALUES (?, ?)",
-                (content, json.dumps(metadata)),
+                "INSERT INTO documents (content, metadata, embedding) VALUES (?, ?, ?)",
+                (content, json.dumps(metadata), emb_array.tobytes()),
             )
             
             if cursor.lastrowid is not None:
                 self.ids.append(cursor.lastrowid)
 
-            self.embeddings.append(np.array(embedding, dtype=np.float32))
+            self.embeddings.append(emb_array)
 
         self.conn.commit()
 
